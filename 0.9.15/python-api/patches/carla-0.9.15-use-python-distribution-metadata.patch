@@ -1,0 +1,38 @@
+diff --git a/PythonAPI/carla/setup.py b/PythonAPI/carla/setup.py
+--- a/PythonAPI/carla/setup.py
++++ b/PythonAPI/carla/setup.py
+@@ -10,6 +10,7 @@
+ from setuptools import setup, Extension
+ 
+ import fnmatch
++import json
+ import os
+ import sys
+ 
+@@ -175,17 +176,22 @@ def get_license():
+ with open("README.md") as f:
+     long_description = f.read()
+ 
++with open("distribution.json") as f:
++    distribution = json.load(f)
++
+ setup(
+-    name='carla',
+-    version='0.9.15',
++    name=distribution['name'],
++    version=distribution['version'],
+     package_dir={'': 'source'},
+     packages=['carla'],
+     ext_modules=get_libcarla_extensions(),
+     license=get_license(),
+-    description='Python API for communicating with the CARLA server.',
++    license_files=['LICENSE'],
++    description=distribution['description'],
+     long_description=long_description,
+     long_description_content_type='text/markdown',
+-    url='https://github.com/carla-simulator/carla',
++    url=distribution['url'],
+     author='The CARLA team',
+     author_email='carla.simulator@gmail.com',
++    python_requires=distribution['python_requires'],
+     include_package_data=True)

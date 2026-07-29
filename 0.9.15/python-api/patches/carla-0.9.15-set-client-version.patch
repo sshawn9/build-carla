@@ -1,0 +1,12 @@
+diff --git a/Util/BuildTools/Environment.sh b/Util/BuildTools/Environment.sh
+--- a/Util/BuildTools/Environment.sh
++++ b/Util/BuildTools/Environment.sh
+@@ -33,7 +33,7 @@ else
+ fi
+ 
+ function get_git_repository_version {
+-  git describe --tags --dirty --always
++  echo "0.9.15"
+ }
+ 
+ function copy_if_changed {

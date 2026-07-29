@@ -1,0 +1,46 @@
+diff --git a/Util/BuildTools/Setup.sh b/Util/BuildTools/Setup.sh
+--- a/Util/BuildTools/Setup.sh
++++ b/Util/BuildTools/Setup.sh
+@@ -66,6 +66,7 @@ UNREAL_HOSTED_CFLAGS=""
+ 
+ BOOST_VERSION=1.80.0
+ BOOST_BASENAME="boost-${BOOST_VERSION}-${CXX_TAG}"
++BOOST_PACKAGE_BASENAME=boost_${BOOST_VERSION//./_}
+ 
+ BOOST_INCLUDE=${PWD}/${BOOST_BASENAME}-install/include
+ BOOST_LIBPATH=${PWD}/${BOOST_BASENAME}-install/lib
+@@ -84,11 +85,11 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
+ 
+   if { ${SHOULD_BUILD_BOOST} ; } ; then
+     rm -Rf ${BOOST_BASENAME}-source
+ 
+-    BOOST_PACKAGE_BASENAME=boost_${BOOST_VERSION//./_}
+-
+-    log "Retrieving boost."
+-    wget "https://archives.boost.io/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
++    if [[ ! -f "${BOOST_PACKAGE_BASENAME}.tar.gz" ]] ; then
++      log "Retrieving boost."
++      wget "https://archives.boost.io/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
++    fi
+     # try to use the backup boost we have in Jenkins
+     if [[ ! -f "${BOOST_PACKAGE_BASENAME}.tar.gz" ]] ; then
+       log "Using boost backup"
+@@ -136,7 +137,6 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
+     popd >/dev/null
+ 
+     rm -Rf ${BOOST_BASENAME}-source
+-    rm ${BOOST_PACKAGE_BASENAME}.tar.gz
+ 
+     # Install boost dependencies
+     mkdir -p "${LIBCARLA_INSTALL_CLIENT_FOLDER}/include/system"
+@@ -145,5 +145,10 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
+     cp -rf ${BOOST_BASENAME}-install/lib/* ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib
+ 
+   fi
++
++  if [[ "${PY_VERSION}" == "${PY_VERSION_LIST[-1]}" ]] ; then
++    rm -f "${BOOST_PACKAGE_BASENAME}.tar.gz"
++    unset BOOST_PACKAGE_BASENAME
++  fi
+ 
+ done

@@ -1,0 +1,38 @@
+diff --git a/Util/BuildTools/BuildOSM2ODR.sh b/Util/BuildTools/BuildOSM2ODR.sh
+--- a/Util/BuildTools/BuildOSM2ODR.sh
++++ b/Util/BuildTools/BuildOSM2ODR.sh
+@@ -78,10 +78,28 @@ if ${BUILD_OSM2ODR} ; then
+   log "Building OSM2ODR."
+   # [ ! -d ${OSM2ODR_BUILD_FOLDER} ] && mkdir ${OSM2ODR_BUILD_FOLDER}
+   if ${GIT_PULL} ; then
+-    if [ ! -d ${OSM2ODR_SOURCE_FOLDER} ] ; then
+-      git clone -b ${OSM2ODR_BRANCH} ${OSM2ODR_REPO} ${OSM2ODR_SOURCE_FOLDER}
++    if [ -d ${OSM2ODR_SOURCE_FOLDER}/.git ] && \
++       ! git -C ${OSM2ODR_SOURCE_FOLDER} rev-parse --git-dir >/dev/null 2>&1 ; then
++      git config --global --add safe.directory ${OSM2ODR_SOURCE_FOLDER}
++    fi
++    if [ ! -d ${OSM2ODR_SOURCE_FOLDER}/.git ] ; then
++      git init ${OSM2ODR_SOURCE_FOLDER}
++      git -C ${OSM2ODR_SOURCE_FOLDER} remote add origin ${OSM2ODR_REPO}
++    fi
++    git -C ${OSM2ODR_SOURCE_FOLDER} config core.repositoryFormatVersion 1
++    git -C ${OSM2ODR_SOURCE_FOLDER} config extensions.partialClone origin
++    git -C ${OSM2ODR_SOURCE_FOLDER} config remote.origin.promisor true
++    git -C ${OSM2ODR_SOURCE_FOLDER} config remote.origin.partialCloneFilter blob:none
++    if ! git -C ${OSM2ODR_SOURCE_FOLDER} rev-parse HEAD >/dev/null 2>&1 ; then
++      git -C ${OSM2ODR_SOURCE_FOLDER} fetch --depth 1 --filter=blob:none origin ${CURRENT_OSM2ODR_COMMIT}
++      git -C ${OSM2ODR_SOURCE_FOLDER} update-ref --no-deref HEAD FETCH_HEAD
++      git -C ${OSM2ODR_SOURCE_FOLDER} sparse-checkout init --cone
++      git -C ${OSM2ODR_SOURCE_FOLDER} sparse-checkout set src build/cmake_modules
++      git -C ${OSM2ODR_SOURCE_FOLDER} read-tree -mu HEAD
+     fi
+     cd ${OSM2ODR_SOURCE_FOLDER}
+-    git fetch
+-    git checkout ${CURRENT_OSM2ODR_COMMIT}
++    if [[ "$(git rev-parse HEAD 2>/dev/null || true)" != "${CURRENT_OSM2ODR_COMMIT}" ]] ; then
++      git fetch --depth 1 --filter=blob:none origin ${CURRENT_OSM2ODR_COMMIT}
++      git checkout --detach ${CURRENT_OSM2ODR_COMMIT}
++    fi
+   fi
+ 
+   mkdir -p ${OSM2ODR_BUILD_FOLDER}

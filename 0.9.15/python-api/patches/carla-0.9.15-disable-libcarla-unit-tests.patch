@@ -1,0 +1,13 @@
+diff --git a/Util/BuildTools/BuildLibCarla.sh b/Util/BuildTools/BuildLibCarla.sh
+--- a/Util/BuildTools/BuildLibCarla.sh
++++ b/Util/BuildTools/BuildLibCarla.sh
+@@ -122,7 +122,7 @@ fi
+ #     usage: build_libcarla {Server,Client,ClientRSS} {Debug,Release}
+ #
+ function build_libcarla {
+ 
+-  CMAKE_EXTRA_OPTIONS=''
++  CMAKE_EXTRA_OPTIONS='-DLIBCARLA_BUILD_TEST=OFF'
+ 
+   if [ $1 == Server ] ; then
+     M_TOOLCHAIN=${LIBCPP_TOOLCHAIN_FILE}

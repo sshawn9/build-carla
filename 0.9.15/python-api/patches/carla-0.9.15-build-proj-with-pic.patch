@@ -1,0 +1,11 @@
+diff --git a/Util/BuildTools/Setup.sh b/Util/BuildTools/Setup.sh
+--- a/Util/BuildTools/Setup.sh
++++ b/Util/BuildTools/Setup.sh
+@@ -632,6 +632,7 @@ else
+   pushd ${PROJ_SRC_DIR}/build >/dev/null
+ 
+   cmake -G "Ninja" .. \
++      -DCMAKE_C_FLAGS="-fPIC" \
+       -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC" \
+       -DSQLITE3_INCLUDE_DIR=${SQLITE_INCLUDE_DIR} -DSQLITE3_LIBRARY=${SQLITE_LIB} \
+       -DEXE_SQLITE3=${SQLITE_EXE} \

@@ -1,0 +1,21 @@
+diff --git a/Util/BuildTools/Setup.sh b/Util/BuildTools/Setup.sh
+--- a/Util/BuildTools/Setup.sh
++++ b/Util/BuildTools/Setup.sh
+@@ -101,7 +101,17 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
+     log "Extracting boost for Python ${PY_VERSION}."
+     tar -xzf ${BOOST_PACKAGE_BASENAME}.tar.gz
+     mkdir -p ${BOOST_BASENAME}-install/include
+     mv ${BOOST_PACKAGE_BASENAME} ${BOOST_BASENAME}-source
++
++    # Boost.Python 1.80 still uses an API removed in CPython 3.13. Backport
++    # upstream commit 41e208ecb598552f6d8c3bf9acacd5611d49a50d.
++    sed -i 's/PyEval_CallMethod/PyObject_CallMethod/' "${BOOST_BASENAME}-source/boost/python/call_method.hpp"
++    grep -q 'PyObject_CallMethod' "${BOOST_BASENAME}-source/boost/python/call_method.hpp"
++
++    # Boost.Python upstream commit a218babc8daee904a83f550fb66e5cb3f1cb3013
++    # fixes enum_type_object for CPython 3.11 and newer.
++    sed -i '/^[[:space:]]*| Py_TPFLAGS_HAVE_GC$/d' "${BOOST_BASENAME}-source/libs/python/src/object/enum.cpp"
++    ! grep -q '^[[:space:]]*| Py_TPFLAGS_HAVE_GC$' "${BOOST_BASENAME}-source/libs/python/src/object/enum.cpp"
+ 
+     pushd ${BOOST_BASENAME}-source >/dev/null
+ 
