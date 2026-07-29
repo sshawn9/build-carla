@@ -1,0 +1,279 @@
+diff --git a/Util/BuildTools/Setup.sh b/Util/BuildTools/Setup.sh
+--- a/Util/BuildTools/Setup.sh
++++ b/Util/BuildTools/Setup.sh
+@@ -151,7 +151,7 @@ done
+ unset BOOST_BASENAME
+ 
+ # ==============================================================================
+-# -- Get rpclib and compile it with libc++ and libstdc++ -----------------------
++# -- Get rpclib and compile it with libstdc++ ----------------------------------
+ # ==============================================================================
+ 
+ RPCLIB_PATCH=v2.2.1_c5
+@@ -225,13 +225,13 @@ RPCLIB_LIBCXX_LIBPATH=${PWD}/${RPCLIB_BASENAME}-libcxx-install/lib
+ RPCLIB_LIBSTDCXX_INCLUDE=${PWD}/${RPCLIB_BASENAME}-libstdcxx-install/include
+ RPCLIB_LIBSTDCXX_LIBPATH=${PWD}/${RPCLIB_BASENAME}-libstdcxx-install/lib
+ 
+-if [[ -d "${RPCLIB_BASENAME}-libcxx-install" && -d "${RPCLIB_BASENAME}-libstdcxx-install" ]] ; then
++if [[ -d "${RPCLIB_BASENAME}-libstdcxx-install" ]] ; then
+   log "${RPCLIB_BASENAME} already installed."
+ else
+   rm -Rf \
+       ${RPCLIB_BASENAME}-source \
+-      ${RPCLIB_BASENAME}-libcxx-build ${RPCLIB_BASENAME}-libstdcxx-build \
+-      ${RPCLIB_BASENAME}-libcxx-install ${RPCLIB_BASENAME}-libstdcxx-install
++      ${RPCLIB_BASENAME}-libstdcxx-build \
++      ${RPCLIB_BASENAME}-libstdcxx-install
+ 
+   log "Retrieving rpclib."
+ 
+@@ -242,27 +242,10 @@ else
+   end_download_time=$(date +%s)
+ 
+   echo "Elapsed Time downloading rpclib: $(($end_download_time-$start_download_time)) seconds"
+-  log "Building rpclib with libc++."
+-
+   # rpclib does not use any cmake 3.9 feature.
+   # As cmake 3.9 is not standard in Ubuntu 16.04, change cmake version to 3.5
+   sed -i s/"3.9.0"/"3.5.0"/g ${RPCLIB_BASENAME}-source/CMakeLists.txt
+ 
+-  mkdir -p ${RPCLIB_BASENAME}-libcxx-build
+-
+-  pushd ${RPCLIB_BASENAME}-libcxx-build >/dev/null
+-
+-  cmake -G "Ninja" \
+-      -DCMAKE_CXX_FLAGS="-fPIC -std=c++14 -stdlib=libc++ -I${LLVM_INCLUDE} -Wl,-L${LLVM_LIBPATH} -DBOOST_NO_EXCEPTIONS -DASIO_NO_EXCEPTIONS ${UNREAL_HOSTED_CFLAGS}" \
+-      -DCMAKE_INSTALL_PREFIX="../${RPCLIB_BASENAME}-libcxx-install" \
+-      ../${RPCLIB_BASENAME}-source
+-
+-  ninja
+-
+-  ninja install
+-
+-  popd >/dev/null
+-
+   log "Building rpclib with libstdc++."
+ 
+   mkdir -p ${RPCLIB_BASENAME}-libstdcxx-build
+@@ -212,14 +195,14 @@ else
+ 
+   popd >/dev/null
+ 
+-  rm -Rf ${RPCLIB_BASENAME}-source ${RPCLIB_BASENAME}-libcxx-build ${RPCLIB_BASENAME}-libstdcxx-build
++  rm -Rf ${RPCLIB_BASENAME}-source ${RPCLIB_BASENAME}-libstdcxx-build
+ 
+ fi
+ 
+ unset RPCLIB_BASENAME
+ 
+ # ==============================================================================
+-# -- Get GTest and compile it with libc++ --------------------------------------
++# -- Get GTest and compile it with libstdc++ -----------------------------------
+ # ==============================================================================
+ 
+ GTEST_VERSION=1.8.1
+@@ -298,13 +281,13 @@ GTEST_LIBCXX_LIBPATH=${PWD}/${GTEST_BASENAME}-libcxx-install/lib
+ GTEST_LIBSTDCXX_INCLUDE=${PWD}/${GTEST_BASENAME}-libstdcxx-install/include
+ GTEST_LIBSTDCXX_LIBPATH=${PWD}/${GTEST_BASENAME}-libstdcxx-install/lib
+ 
+-if [[ -d "${GTEST_BASENAME}-libcxx-install" && -d "${GTEST_BASENAME}-libstdcxx-install" ]] ; then
++if [[ -d "${GTEST_BASENAME}-libstdcxx-install" ]] ; then
+   log "${GTEST_BASENAME} already installed."
+ else
+   rm -Rf \
+       ${GTEST_BASENAME}-source \
+-      ${GTEST_BASENAME}-libcxx-build ${GTEST_BASENAME}-libstdcxx-build \
+-      ${GTEST_BASENAME}-libcxx-install ${GTEST_BASENAME}-libstdcxx-install
++      ${GTEST_BASENAME}-libstdcxx-build \
++      ${GTEST_BASENAME}-libstdcxx-install
+ 
+   log "Retrieving Google Test."
+ 
+@@ -315,23 +298,6 @@ else
+   end_download_time=$(date +%s)
+   echo "Elapsed Time downloading rpclib: $(($end_download_time-$start_download_time)) seconds"
+ 
+-  log "Building Google Test with libc++."
+-
+-  mkdir -p ${GTEST_BASENAME}-libcxx-build
+-
+-  pushd ${GTEST_BASENAME}-libcxx-build >/dev/null
+-
+-  cmake -G "Ninja" \
+-      -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++ -I${LLVM_INCLUDE} -Wl,-L${LLVM_LIBPATH} -DBOOST_NO_EXCEPTIONS -fno-exceptions ${UNREAL_HOSTED_CFLAGS}" \
+-      -DCMAKE_INSTALL_PREFIX="../${GTEST_BASENAME}-libcxx-install" \
+-      ../${GTEST_BASENAME}-source
+-
+-  ninja
+-
+-  ninja install
+-
+-  popd >/dev/null
+-
+   log "Building Google Test with libstdc++."
+ 
+   mkdir -p ${GTEST_BASENAME}-libstdcxx-build
+@@ -276,7 +242,7 @@ else
+ 
+   popd >/dev/null
+ 
+-  rm -Rf ${GTEST_BASENAME}-source ${GTEST_BASENAME}-libcxx-build ${GTEST_BASENAME}-libstdcxx-build
++  rm -Rf ${GTEST_BASENAME}-source ${GTEST_BASENAME}-libstdcxx-build
+ 
+ fi
+ 
+@@ -386,11 +352,9 @@ XERCESC_REPO=https://archive.apache.org/dist/xerces/c/3/sources/xerces-c-${XER
+ 
+ XERCESC_SRC_DIR=${XERCESC_BASENAME}-source
+ XERCESC_INSTALL_DIR=${XERCESC_BASENAME}-install
+-XERCESC_INSTALL_SERVER_DIR=${XERCESC_BASENAME}-install-server
+ XERCESC_LIB=${XERCESC_INSTALL_DIR}/lib/libxerces-c.a
+-XERCESC_SERVER_LIB=${XERCESC_INSTALL_SERVER_DIR}/lib/libxerces-c.a
+ 
+-if [[ -d ${XERCESC_INSTALL_DIR} &&  -d ${XERCESC_INSTALL_SERVER_DIR} ]] ; then
++if [[ -d ${XERCESC_INSTALL_DIR} ]] ; then
+   log "Xerces-c already installed."
+ else
+   log "Retrieving xerces-c."
+@@ -423,23 +387,6 @@ else
+ 
+   popd >/dev/null
+ 
+-  mkdir -p ${XERCESC_INSTALL_SERVER_DIR}
+-
+-  pushd ${XERCESC_SRC_DIR}/build >/dev/null
+-
+-  cmake -G "Ninja" \
+-      -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++ -fPIC -w -I${LLVM_INCLUDE} -L${LLVM_LIBPATH}" \
+-      -DCMAKE_INSTALL_PREFIX="../../${XERCESC_INSTALL_SERVER_DIR}" \
+-      -DCMAKE_BUILD_TYPE=Release \
+-      -DBUILD_SHARED_LIBS=OFF \
+-      -Dtranscoder=gnuiconv \
+-      -Dnetwork=OFF \
+-      ..
+-  ninja
+-  ninja install
+-
+-  popd >/dev/null
+-
+   rm -Rf ${XERCESC_BASENAME}.tar.gz
+   rm -Rf ${XERCESC_SRC_DIR}
+ fi
+@@ -541,49 +488,5 @@ fi
+ mkdir -p ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
+ cp ${XERCESC_LIB} ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
+ 
+-mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+-cp -p ${XERCESC_SERVER_LIB} ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+-
+-# ==============================================================================
+-# -- Get Eigen headers 3.1.0 (CARLA dependency) -------------------------------------
+-# ==============================================================================
+-EIGEN_VERSION=3.3.7
+-EIGEN_REPO=https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.gz
+-EIGEN_BASENAME=eigen-${EIGEN_VERSION}
+-
+-EIGEN_SRC_DIR=eigen-${EIGEN_VERSION}-src
+-EIGEN_INSTALL_DIR=eigen-${EIGEN_VERSION}-install
+-EIGEN_INCLUDE=${EIGEN_INSTALL_DIR}/include
+-
+-
+-if [[ -d ${EIGEN_INSTALL_DIR} ]] ; then
+-    log "Eigen already installed."
+-else
+-    log "Retrieving Eigen."
+-
+-    start=$(date +%s)
+-    wget ${EIGEN_REPO}
+-    end=$(date +%s)
+-    echo "Elapsed Time: $(($end-$start)) seconds"
+-
+-    log "Extracting Eigen."
+-
+-    start=$(date +%s)
+-    tar -xzf ${EIGEN_BASENAME}.tar.gz
+-    end=$(date +%s)
+-    echo "Elapsed Time Extracting for Eigen: $(($end-$start)) seconds"
+-
+-    mv ${EIGEN_BASENAME} ${EIGEN_SRC_DIR}
+-    mkdir -p ${EIGEN_INCLUDE}/unsupported
+-    mv ${EIGEN_SRC_DIR}/Eigen ${EIGEN_INCLUDE}
+-    mv ${EIGEN_SRC_DIR}/unsupported/Eigen ${EIGEN_INCLUDE}/unsupported/Eigen
+-
+-    rm -Rf ${EIGEN_BASENAME}.tar.gz
+-    rm -Rf ${EIGEN_SRC_DIR}
+-fi
+-
+-mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
+-cp -p -r ${EIGEN_INCLUDE}/* ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
+-
+ if ${USE_CHRONO} ; then
+   # ==============================================================================
+@@ -573,7 +484,6 @@ SQLITE_INSTALL_DIR=sqlite-install
+ 
+ SQLITE_INCLUDE_DIR=${PWD}/${SQLITE_INSTALL_DIR}/include
+ SQLITE_LIB=${PWD}/${SQLITE_INSTALL_DIR}/lib/libsqlite3.a
+-SQLITE_FULL_LIB=${PWD}/${SQLITE_INSTALL_DIR}/lib/
+ SQLITE_EXE=${PWD}/${SQLITE_INSTALL_DIR}/bin/sqlite3
+ 
+ if [[ -d ${SQLITE_INSTALL_DIR} ]] ; then
+@@ -604,9 +514,6 @@ fi
+ mkdir -p ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
+ cp ${SQLITE_LIB} ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
+ 
+-mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+-cp -p -r ${SQLITE_FULL_LIB} ${LIBCARLA_INSTALL_SERVER_FOLDER}
+-
+ # ==============================================================================
+ # -- Get and compile PROJ ------------------------------------------------------
+ # ==============================================================================
+@@ -617,13 +524,10 @@ PROJ_REPO=https://download.osgeo.org/proj/${PROJ_VERSION}.tar.gz
+ PROJ_TAR=${PROJ_VERSION}.tar.gz
+ PROJ_SRC_DIR=proj-src
+ PROJ_INSTALL_DIR=proj-install
+-PROJ_INSTALL_SERVER_DIR=proj-install-server
+ PROJ_INSTALL_DIR_FULL=${PWD}/${PROJ_INSTALL_DIR}
+-PROJ_INSTALL_SERVER_DIR_FULL=${PWD}/${PROJ_INSTALL_SERVER_DIR}
+ PROJ_LIB=${PROJ_INSTALL_DIR_FULL}/lib/libproj.a
+-PROJ_SERVER_LIB=${PROJ_INSTALL_SERVER_DIR_FULL}/lib/libproj.a
+ 
+-if [[ -d ${PROJ_INSTALL_DIR} && -d ${PROJ_INSTALL_SERVER_DIR_FULL} ]] ; then
++if [[ -d ${PROJ_INSTALL_DIR} ]] ; then
+   log "PROJ already installed."
+ else
+   log "Retrieving PROJ"
+@@ -653,24 +557,6 @@ else
+ 
+   popd >/dev/null
+ 
+-  mkdir -p ${PROJ_INSTALL_SERVER_DIR}
+-
+-  pushd ${PROJ_SRC_DIR}/build >/dev/null
+-
+-  cmake -G "Ninja" .. \
+-      -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC -stdlib=libc++ -I${LLVM_INCLUDE} -Wl,-L${LLVM_LIBPATH}"  \
+-      -DSQLITE3_INCLUDE_DIR=${SQLITE_INCLUDE_DIR} -DSQLITE3_LIBRARY=${SQLITE_LIB} \
+-      -DEXE_SQLITE3=${SQLITE_EXE} \
+-      -DENABLE_TIFF=OFF -DENABLE_CURL=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_PROJSYNC=OFF \
+-      -DCMAKE_BUILD_TYPE=Release -DBUILD_PROJINFO=OFF \
+-      -DBUILD_CCT=OFF -DBUILD_CS2CS=OFF -DBUILD_GEOD=OFF -DBUILD_GIE=OFF \
+-      -DBUILD_PROJ=OFF -DBUILD_TESTING=OFF \
+-      -DCMAKE_INSTALL_PREFIX=${PROJ_INSTALL_SERVER_DIR_FULL}
+-  ninja
+-  ninja install
+-
+-  popd >/dev/null
+-
+   rm -Rf ${PROJ_TAR}
+   rm -Rf ${PROJ_SRC_DIR}
+ 
+@@ -679,9 +564,6 @@ else
+ 
+ cp ${PROJ_LIB} ${LIBCARLA_INSTALL_CLIENT_FOLDER}/lib/
+ 
+-mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+-cp -p ${PROJ_SERVER_LIB} ${LIBCARLA_INSTALL_SERVER_FOLDER}/lib/
+-
+ # ==============================================================================
+ # -- Get and compile patchelf --------------------------------------------------
+ # ==============================================================================

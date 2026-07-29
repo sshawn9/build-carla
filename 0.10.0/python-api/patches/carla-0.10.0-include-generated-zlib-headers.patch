@@ -1,0 +1,14 @@
+diff --git a/CMake/Dependencies.cmake b/CMake/Dependencies.cmake
+--- a/CMake/Dependencies.cmake
++++ b/CMake/Dependencies.cmake
+@@ -115,6 +115,9 @@ else ()
+   carla_dependency_option (ZLIB_LIBRARY ${zlib_BINARY_DIR}/libz.a)
+ endif ()
+-carla_dependency_option (ZLIB_INCLUDE_DIRS ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
++carla_dependency_option (
++  ZLIB_INCLUDE_DIRS
++  "${zlib_SOURCE_DIR};${zlib_BINARY_DIR}"
++)
+ carla_dependency_option (ZLIB_LIBRARIES ${ZLIB_LIBRARY})
+ 
+ 

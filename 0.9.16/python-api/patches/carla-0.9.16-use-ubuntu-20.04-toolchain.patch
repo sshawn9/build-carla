@@ -1,0 +1,62 @@
+diff --git a/Util/BuildTools/BuildOSM2ODR.sh b/Util/BuildTools/BuildOSM2ODR.sh
+--- a/Util/BuildTools/BuildOSM2ODR.sh
++++ b/Util/BuildTools/BuildOSM2ODR.sh
+@@ -92,9 +92,6 @@ if ${BUILD_OSM2ODR} ; then
+   cd ${OSM2ODR_BUILD_FOLDER}
+ 
+ 
+-  export CC="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin/clang"
+-  export CXX="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin/clang++"
+-  export PATH="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin:$PATH"
+ 
+   cmake ${OSM2ODR_SOURCE_FOLDER} \
+       -G "Eclipse CDT4 - Ninja" \
+diff --git a/Util/BuildTools/BuildPythonAPI.sh b/Util/BuildTools/BuildPythonAPI.sh
+--- a/Util/BuildTools/BuildPythonAPI.sh
++++ b/Util/BuildTools/BuildPythonAPI.sh
+@@ -63,10 +63,6 @@ while [[ $# -gt 0 ]]; do
+ done
+ 
+ 
+-export CC="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin/clang"
+-export CXX="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin/clang++"
+-export PATH="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin:$PATH"
+-
+ source $(dirname "$0")/Environment.sh
+ 
+ if ! { ${REMOVE_INTERMEDIATE} || ${BUILD_PYTHONAPI} || ${BUILD_PYTHONAPI_WHEEL} ; }; then
+diff --git a/Util/BuildTools/Setup.sh b/Util/BuildTools/Setup.sh
+--- a/Util/BuildTools/Setup.sh
++++ b/Util/BuildTools/Setup.sh
+@@ -51,9 +51,6 @@ done
+ 
+ source $(dirname "$0")/Environment.sh
+ 
+-export CC="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin/clang"
+-export CXX="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin/clang++"
+-export PATH="$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/bin:$PATH"
+ 
+ CXX_TAG=c10
+ 
+@@ -65,9 +62,9 @@ IFS="," read -r -a PY_VERSION_LIST <<< "${PY_VERSION_LIST}"
+ mkdir -p ${CARLA_BUILD_FOLDER}
+ pushd ${CARLA_BUILD_FOLDER} >/dev/null
+ 
+-LLVM_INCLUDE="$UE4_ROOT/Engine/Source/ThirdParty/Linux/LibCxx/include/c++/v1"
+-LLVM_LIBPATH="$UE4_ROOT/Engine/Source/ThirdParty/Linux/LibCxx/lib/Linux/x86_64-unknown-linux-gnu"
+-UNREAL_HOSTED_CFLAGS="--sysroot=$UE4_ROOT/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v17_clang-10.0.1-centos7/x86_64-unknown-linux-gnu/"
++LLVM_INCLUDE="/usr/lib/llvm-10/include/c++/v1"
++LLVM_LIBPATH="/usr/lib/llvm-10/lib"
++UNREAL_HOSTED_CFLAGS=""
+ 
+ # ==============================================================================
+ # -- Generate CMake toolchains -------------------------------------------------
+@@ -180,7 +177,7 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
+ 
+     pushd ${BOOST_BASENAME}-source >/dev/null
+ 
+-    BOOST_TOOLSET="clang-10.0"
++    BOOST_TOOLSET="clang"
+     BOOST_CFLAGS="-fPIC -std=c++14 -DBOOST_ERROR_CODE_HEADER_ONLY"
+ 
+     py3="/usr/bin/env python${PY_VERSION}"

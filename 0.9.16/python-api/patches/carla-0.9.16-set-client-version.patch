@@ -1,0 +1,20 @@
+diff --git a/Util/BuildTools/Environment.sh b/Util/BuildTools/Environment.sh
+--- a/Util/BuildTools/Environment.sh
++++ b/Util/BuildTools/Environment.sh
+@@ -31,15 +31,7 @@ else
+ fi
+ 
+ function get_git_repository_version {
+-  branch=$(git rev-parse --abbrev-ref HEAD)
+-
+-  if [[ "$branch" == ue4/* ]]; then
+-    echo "${branch#ue4/}"
+-  else
+-    commit=$(git rev-parse --short HEAD)
+-    git diff-index --quiet HEAD -- || dirty="-dirty"
+-    echo "${commit}${dirty}"
+-  fi
++  echo "0.9.16"
+ }
+ 
+ function copy_if_changed {

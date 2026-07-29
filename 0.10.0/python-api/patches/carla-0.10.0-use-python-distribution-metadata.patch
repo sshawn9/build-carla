@@ -1,0 +1,96 @@
+diff --git a/PythonAPI/CMakeLists.txt b/PythonAPI/CMakeLists.txt
+--- a/PythonAPI/CMakeLists.txt
++++ b/PythonAPI/CMakeLists.txt
+@@ -88,6 +88,13 @@ if (CMAKE_TOOLCHAIN_FILE)
+   )
+ endif ()
+ 
++file (READ "${CARLA_WORKSPACE_PATH}/distribution.json" CARLA_PYTHON_DISTRIBUTION_JSON)
++string (JSON CARLA_PYTHON_DISTRIBUTION_NAME GET "${CARLA_PYTHON_DISTRIBUTION_JSON}" name)
++string (JSON CARLA_PYTHON_DISTRIBUTION_VERSION GET "${CARLA_PYTHON_DISTRIBUTION_JSON}" version)
++string (JSON CARLA_PYTHON_DISTRIBUTION_DESCRIPTION GET "${CARLA_PYTHON_DISTRIBUTION_JSON}" description)
++string (JSON CARLA_PYTHON_DISTRIBUTION_PYTHON_REQUIRES GET "${CARLA_PYTHON_DISTRIBUTION_JSON}" python_requires)
++string (JSON CARLA_PYTHON_DISTRIBUTION_URL GET "${CARLA_PYTHON_DISTRIBUTION_JSON}" url)
++
+ carla_two_step_configure_file (
+   ${CARLA_PYTHON_API_CARLA_PATH}/pyproject.toml
+   ${CARLA_PYTHON_API_CARLA_PATH}/pyproject.toml.in
+diff --git a/PythonAPI/carla/CMakeLists.txt.in b/PythonAPI/carla/CMakeLists.txt.in
+--- a/PythonAPI/carla/CMakeLists.txt.in
++++ b/PythonAPI/carla/CMakeLists.txt.in
+@@ -3,8 +3,10 @@ cmake_minimum_required (
+   @CARLA_CMAKE_MINIMUM_REQUIRED_VERSION@
+ )
+ 
++set (CARLA_PYTHON_EXTENSION_NAME carla)
++
+ project (
+-  ${SKBUILD_PROJECT_NAME}
++  ${CARLA_PYTHON_EXTENSION_NAME}
+   VERSION @CARLA_VERSION@
+   LANGUAGES CXX
+ )
+@@ -130,7 +132,7 @@ list (
+ )
+ 
+ Python3_add_library (
+-  ${SKBUILD_PROJECT_NAME}
++  ${CARLA_PYTHON_EXTENSION_NAME}
+   MODULE
+   ${PYTHON_API_ADD_LIBRARY_ARGS}
+   ${PYTHON_API_HEADERS}
+@@ -138,12 +140,12 @@ Python3_add_library (
+ )
+ 
+ install (
+-  TARGETS ${SKBUILD_PROJECT_NAME}
++  TARGETS ${CARLA_PYTHON_EXTENSION_NAME}
+   DESTINATION .
+ )
+ 
+ target_include_directories (
+-  ${SKBUILD_PROJECT_NAME} SYSTEM PRIVATE
++  ${CARLA_PYTHON_EXTENSION_NAME} SYSTEM PRIVATE
+   ${CARLA_PYTHON_API_INCLUDE_PATH}
+   $<TARGET_PROPERTY:carla-client,INTERFACE_INCLUDE_DIRECTORIES>
+   $<TARGET_PROPERTY:@Boost_asio_TARGET_NAME@,INTERFACE_INCLUDE_DIRECTORIES>
+@@ -189,11 +191,11 @@ if (WIN32)
+ endif ()
+ 
+ target_compile_definitions (
+-  ${SKBUILD_PROJECT_NAME} PRIVATE
++  ${CARLA_PYTHON_EXTENSION_NAME} PRIVATE
+   ${PYTHON_API_BUILD_DEFINITIONS}
+ )
+ 
+ target_link_libraries (
+-  ${SKBUILD_PROJECT_NAME} PUBLIC
++  ${CARLA_PYTHON_EXTENSION_NAME} PUBLIC
+   $<TARGET_FILE:carla-client>
+   $<TARGET_FILE:@Boost_python_TARGET_NAME@>
+diff --git a/PythonAPI/carla/pyproject.toml.in b/PythonAPI/carla/pyproject.toml.in
+--- a/PythonAPI/carla/pyproject.toml.in
++++ b/PythonAPI/carla/pyproject.toml.in
+@@ -14,10 +14,10 @@ ninja.make-fallback=true
+ 
+ [project]
+-name = 'carla'
+-version = '@CARLA_VERSION@'
+-requires-python = '>=@Python3_VERSION_MAJOR@.@Python3_VERSION_MINOR@'
++name = '@CARLA_PYTHON_DISTRIBUTION_NAME@'
++version = '@CARLA_PYTHON_DISTRIBUTION_VERSION@'
++requires-python = '@CARLA_PYTHON_DISTRIBUTION_PYTHON_REQUIRES@'
+ authors = [ { name = 'The CARLA team', email = 'carla.simulator@gmail.com' } ]
+-description = 'Python API for communicating with the CARLA server.'
++description = '@CARLA_PYTHON_DISTRIBUTION_DESCRIPTION@'
+ readme = 'README.md'
+ license = { 'file' = 'LICENSE' }
+ keywords = [
+@@ -42,6 +42,6 @@ keywords = [
+ ]
+ 
+ [project.urls]
+-Homepage = 'https://carla.org/'
++Homepage = '@CARLA_PYTHON_DISTRIBUTION_URL@'
+ Documentation = 'https://carla.readthedocs.io/en/latest/'
+ Repository = 'https://github.com/carla-simulator/carla.git'
