@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 
 exec docker run --rm \
+    --network host \
     --user root \
     --volume "${REPOSITORY_ROOT}:/workspace" \
     --workdir /workspace \
